@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Blood Report</title>
+    <!-- 1. Load Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 2. Load Lucide icons (optional, but nice) -->
+    <script src="https://unpkg.com/lucide-react@latest/dist/umd/lucide.min.js"></script>
+    <!-- 3. Configure Tailwind (optional, for custom fonts etc.) -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'brand-blue': '#0052FF',
+                        'brand-dark': '#1E2A3A',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- 4. Custom CSS for the modal transition -->
+    <style>
+        body {
+            font-family: 'Inter', 'sans-serif';
+        }
+        /* Simple fade-in animation for the modal */
+        .modal {
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+        .modal-content {
+             transition: transform 0.25s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-brand-dark">
+
+    <!-- Main Container -->
+    <div class="container mx-auto max-w-4xl p-4 md:p-8">
+        
+        <!-- Header -->
+        <header class="mb-8 p-6 bg-white rounded-lg shadow-md flex flex-col md:flex-row justify-between items-start md:items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-brand-blue">Your Blood Test Results</h1>
+                <p class="text-gray-600 mt-1">Report from: <span class="font-semibold">Oct 23, 2025</span></p>
+            </div>
+            <div class="text-left md:text-right mt-4 md:mt-0">
+                <p class="text-lg font-semibold">Jane M. Doe</p>
+                <p class="text-gray-500">Patient ID: 987-654-321</p>
+            </div>
+        </header>
+
+        <!-- Summary Section -->
+        <section class="mb-8 p-6 bg-white rounded-lg shadow-md">
+            <h2 class="text-2xl font-semibold mb-4 border-b pb-2">At a Glance</h2>
+            
+            <!-- NEW: Plain English Summary -->
+            <p class="text-lg text-gray-700 mb-6">
+                Overall, your results look stable. We've highlighted <span class="font-semibold text-red-600">2 items</span> that are out of range and <span class="font-semibold text-yellow-600">1 to keep an eye on</span>. You can click on any item for more details and discussion points for your doctor.
+            </p>
+            <!-- END NEW: Plain English Summary -->
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- At a Glance Cards -->
+                <div class="p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+                    <p class="text-sm text-blue-700">In Range</p>
+                    <p class="text-3xl font-bold text-blue-900">12</p>
+                    <p class="text-sm text-blue-700">Biomarkers</p>
+                </div>
+                <div class="p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-r-lg">
+                    <p class="text-sm text-yellow-700">Borderline</p>
+                    <p class="text-3xl font-bold text-yellow-900">1</p>
+                    <p class="text-sm text-yellow-700">Biomarker (Glucose)</p>
+                </div>
+                <div class="p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg">
+                    <p class="text-sm text-red-700">Out of Range</p>
+                    <p class="text-3xl font-bold text-red-900">2</p>
+                    <p class="text-sm text-red-700">Biomarkers (LDL, AST)</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Detailed Results Section -->
+        <main class="space-y-8">
+            <!-- Lipid Panel -->
+            <section class="bg-white rounded-lg shadow-md overflow-hidden">
+                <h2 class="text-2xl font-semibold p-6 bg-gray-50 border-b">Lipid Panel (Heart Health)</h2>
+                <div class="divide-y divide-gray-200">
+                    <!-- Table Header -->
+                    <div class="hidden md:grid grid-cols-4 gap-4 p-4 font-semibold text-gray-600 text-sm">
+                        <span>Biomarker</span>
+                        <span class="text-center">Your Result</span>
+                        <span class="text-center">Standard Range</span>
+                        <span class="text-center">Status</span>
+                    </div>
+                    
+                    <!-- Result Row: LDL (High) -->
+                    <article 
+                        class="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 items-center cursor-pointer hover:bg-gray-50 interactive-row"
+                        data-test-name="LDL Cholesterol"
+                        data-result="142"
+                        data-unit="mg/dL"
+                        data-range="< 100 mg/dL"
+                        data-status="High"
+                        data-status-color="red"
+                        data-info="LDL (Low-Density Lipoprotein) is often called 'bad' cholesterol. High levels can lead to plaque buildup in your arteries, increasing your risk for heart disease and stroke. Your value of 142 is considered high, which puts you at a higher risk. This is often manageable with lifestyle changes."
+                        data-trend="[120, 130, 125, 142]"
+                        data-next-steps="Discuss this result with your doctor. They can help you create a plan, which may include dietary changes, exercise, or medication.">
+                        
+                        <div class="font-semibold text-brand-dark">LDL Cholesterol</div>
+                        <div class="text-lg font-bold text-right md:text-center text-red-600">142 <span class="text-sm font-normal text-gray-500">mg/dL</span></div>
+                        <div class="text-gray-500 text-left col-span-2 md:col-span-1 md:text-center"><span class="md:hidden font-medium text-gray-600">Range: </span>&lt; 100 mg/dL</div>
+                        <div class="text-right md:text-center">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-700">
+                                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+                                High
+                            </span>
+                        </div>
+                    </article>
+
+                    <!-- Result Row: HDL (Normal) -->
+                    <article 
+                        class="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 items-center cursor-pointer hover:bg-gray-50 interactive-row"
+                        data-test-name="HDL Cholesterol"
+                        data-result="55"
+                        data-unit="mg/dL"
+                        data-range="> 40 mg/dL"
+                        data-status="Normal"
+                        data-status-color="green"
+                        data-info="HDL (High-Density Lipoprotein) is often called 'good' cholesterol. It helps remove other forms of cholesterol from your bloodstream. Higher levels are generally better. Your level of 55 is in the healthy, protective range. Keep up the good work!"
+                        data-trend="[50, 52, 58, 55]"
+                        data-next-steps="No action needed for this result. Continue your current healthy habits.">
+                        
+                        <div class="font-semibold text-brand-dark">HDL Cholesterol</div>
+                        <div class="text-lg font-bold text-right md:text-center text-green-600">55 <span class="text-sm font-normal text-gray-500">mg/dL</span></div>
+                        <div class="text-gray-500 text-left col-span-2 md:col-span-1 md:text-center"><span class="md:hidden font-medium text-gray-600">Range: </span>&gt; 40 mg/dL</div>
+                        <div class="text-right md:text-center">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
+                                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                Normal
+                            </span>
+                        </div>
+                    </article>
+
+                    <!-- Result Row: Triglycerides (Normal) -->
+                    <article 
+                        class="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 items-center cursor-pointer hover:bg-gray-50 interactive-row"
+                        data-test-name="Triglycerides"
+                        data-result="130"
+                        data-unit="mg/dL"
+                        data-range="< 150 mg/dL"
+                        data-status="Normal"
+                        data-status-color="green"
+                        data-info="Triglycerides are a type of fat (lipid) found in your blood. High levels can contribute to the hardening of arteries or thickening of artery walls, which increases the risk of stroke and heart attack. Your level of 130 is in the normal range."
+                        data-trend="[140, 120, 135, 130]"
+                        data-next-steps="No action needed for this result.">
+                        
+                        <div class="font-semibold text-brand-dark">Triglycerides</div>
+                        <div class="text-lg font-bold text-right md:text-center text-green-600">130 <span class="text-sm font-normal text-gray-500">mg/dL</span></div>
+                        <div class="text-gray-500 text-left col-span-2 md:col-span-1 md:text-center"><span class="md:hidden font-medium text-gray-600">Range: </span>&lt; 150 mg/dL</div>
+                        <div class="text-right md:text-center">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
+                                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                Normal
+                            </span>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- Metabolic Panel -->
+            <section class="bg-white rounded-lg shadow-md overflow-hidden">
+                <h2 class="text-2xl font-semibold p-6 bg-gray-50 border-b">Comprehensive Metabolic Panel</h2>
+                <div class="divide-y divide-gray-200">
+                    <!-- Table Header -->
+                    <div class="hidden md:grid grid-cols-4 gap-4 p-4 font-semibold text-gray-600 text-sm">
+                        <span>Biomarker</span>
+                        <span class="text-center">Your Result</span>
+                        <span class="text-center">Standard Range</span>
+                        <span class="text-center">Status</span>
+                    </div>
+
+                    <!-- Result Row: Glucose (Borderline) -->
+                    <article 
+                        class="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 items-center cursor-pointer hover:bg-gray-50 interactive-row"
+                        data-test-name="Glucose"
+                        data-result="108"
+                        data-unit="mg/dL"
+                        data-range="70 - 99 mg/dL"
+                        data-status="Borderline"
+                        data-status-color="yellow"
+                        data-info="Glucose is your body's main source of energy. This test measures the sugar level in your blood. A result between 100-125 mg/dL is considered 'prediabetes' or borderline. This means your level is higher than normal, but not yet high enough to be diagnosed as type 2 diabetes. This is an important warning sign."
+                        data-trend="[98, 95, 102, 108]"
+                        data-next-steps="Your doctor will likely want to discuss this with you. Lifestyle changes, such as diet and exercise, are very effective at managing and even reversing prediabetes.">
+                        
+                        <div class="font-semibold text-brand-dark">Glucose</div>
+                        <div class="text-lg font-bold text-right md:text-center text-yellow-600">108 <span class="text-sm font-normal text-gray-500">mg/dL</span></div>
+                        <div class="text-gray-500 text-left col-span-2 md:col-span-1 md:text-center"><span class="md:hidden font-medium text-gray-600">Range: </span>70 - 99 mg/dL</div>
+                        <div class="text-right md:text-center">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-700">
+                                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                Borderline
+                            </span>
+                        </div>
+                    </article>
+
+                    <!-- Other rows would go here (AST, ALT, etc.) -->
+
+                </div>
+            </section>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-gray-500 text-sm">
+            <p>&copy; 2025 HealthReports Inc. This is a prototype and not real medical advice.</p>
+            <p>Consult your physician to interpret these results.</p>
+        </footer>
+    </div>
+    <!-- End Main Container -->
+
+
+    <!-- 
+    ============================================================
+    MODAL (POP-UP) SECTION
+    Initially hidden. JavaScript will control its visibility.
+    ============================================================
+    -->
+    <div id="modal-backdrop" class="modal fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 opacity-0 scale-95 pointer-events-none">
+        <!-- Modal Content -->
+        <div id="modal-content" class="modal-content bg-white w-full max-w-2xl rounded-lg shadow-2xl overflow-hidden transform scale-95">
+            <!-- Modal Header -->
+            <div id="modal-header" class="p-5 border-b flex justify-between items-center">
+                <h3 id="modal-title" class="text-2xl font-semibold">Biomarker Details</h3>
+                <button id="modal-close-btn" class_="text-gray-400 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="p-6">
+                <!-- Result & Gauge -->
+                <div class="text-center mb-6">
+                    <p class="text-sm text-gray-500">Your Result</p>
+                    <p id="modal-result" class="text-5xl font-bold">142</p>
+                    <p id="modal-range" class="text-sm text-gray-500 mt-1">Standard Range: &lt; 100 mg/dL</p>
+                    
+                    <!-- Simple Visual Gauge -->
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 my-4">
+                        <div id="modal-gauge" class="h-2.5 rounded-full" style="width: 75%"></div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-500 px-1">
+                        <span>Low</span>
+                        <span>Normal</span>
+                        <span>High</span>
+                    </div>
+                </div>
+
+                <!-- Info Section -->
+                <div class="mb-6">
+                    <h4 class="text-lg font-semibold mb-2">What this means</h4>
+                    <p id="modal-info" class="text-gray-700 leading-relaxed">
+                        Info text will be populated by JavaScript...
+                    </p>
+                </div>
+
+                <!-- NEW: Next Steps Section -->
+                <div id="modal-next-steps-container" class="mb-6" style="display: none;">
+                    <h4 class="text-lg font-semibold mb-2">Recommended Next Steps</h4>
+                    <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
+                        <p id="modal-next-steps" class="text-gray-800 leading-relaxed">
+                            Next steps text will be populated by JavaScript...
+                        </p>
+                    </div>
+                </div>
+                <!-- END NEW: Next Steps Section -->
+
+                <!-- Trend Section -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-3">Your Trend (Last 4 Tests)</h4>
+                    <!-- This is a simple pseudo-chart. A real one would use a library like Chart.js -->
+                    <div class="flex items-end justify-between border-b h-32 p-4 bg-gray-50 rounded-lg">
+                        <div id="trend-bar-1" class="w-1/5 bg-blue-300 rounded-t-sm" title="Test 1"></div>
+                        <div id="trend-bar-2" class="w-1/5 bg-blue-300 rounded-t-sm" title="Test 2"></div>
+                        <div id="trend-bar-3" class="w-1/5 bg-blue-300 rounded-t-sm" title="Test 3"></div>
+                        <div id="trend-bar-4" class="w-1/5 bg-blue-500 rounded-t-sm font-bold text-white text-center" title="Current Test"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 
+    ============================================================
+    JAVASCRIPT SECTION
+    Handles the interactivity of the modal.
+    ============================================================
+    -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get all modal elements
+            const modalBackdrop = document.getElementById('modal-backdrop');
+            const modalContent = document.getElementById('modal-content');
+            const modalCloseBtn = document.getElementById('modal-close-btn');
+            const interactiveRows = document.querySelectorAll('.interactive-row');
+
+            // Get modal content placeholders
+            const modalTitle = document.getElementById('modal-title');
+            const modalResult = document.getElementById('modal-result');
+            const modalRange = document.getElementById('modal-range');
+            const modalGauge = document.getElementById('modal-gauge');
+            const modalInfo = document.getElementById('modal-info');
+            const modalHeader = document.getElementById('modal-header');
+            // NEW: Get next steps elements
+            const modalNextSteps = document.getElementById('modal-next-steps');
+            const modalNextStepsContainer = document.getElementById('modal-next-steps-container');
+
+
+            // Get trend bar elements
+            const trendBars = [
+                document.getElementById('trend-bar-1'),
+                document.getElementById('trend-bar-2'),
+                document.getElementById('trend-bar-3'),
+                document.getElementById('trend-bar-4'),
+            ];
+
+            // Function to open the modal
+            const openModal = (data) => {
+                // 1. Populate modal content
+                modalTitle.textContent = data.testName;
+                modalResult.textContent = `${data.result} ${data.unit}`;
+                modalRange.textContent = `Standard Range: ${data.range}`;
+                modalInfo.textContent = data.info;
+
+                // 2. Clear previous status colors
+                const colors = ['red', 'green', 'yellow'];
+                modalResult.classList.remove(...colors.map(c => `text-${c}-600`));
+                modalHeader.classList.remove(...colors.map(c => `bg-${c}-50`));
+                modalGauge.classList.remove(...colors.map(c => `bg-${c}-500`));
+
+                // 3. Set new status colors
+                if (data.statusColor) {
+                    modalResult.classList.add(`text-${data.statusColor}-600`);
+                    modalHeader.classList.add(`bg-${data.statusColor}-50`);
+                    modalGauge.classList.add(`bg-${data.statusColor}-500`);
+                }
+
+                // 4. Calculate gauge (simplified)
+                // This is a basic example. A real app would have better logic.
+                let gaugePercent = 50;
+                if (data.status === 'High') gaugePercent = 85;
+                if (data.status === 'Low') gaugePercent = 15;
+                if (data.status === 'Normal') gaugePercent = 45;
+                if (data.status === 'Borderline') gaugePercent = 65;
+                modalGauge.style.width = `${gaugePercent}%`;
+
+                // 5. Populate trend data (simplified)
+                try {
+                    const trendData = JSON.parse(data.trend);
+                    if (Array.isArray(trendData) && trendData.length > 0) {
+                        const maxVal = Math.max(...trendData) * 1.2; // Add 20% padding
+                        trendBars.forEach((bar, index) => {
+                            if (trendData[index]) {
+                                const heightPercent = (trendData[index] / maxVal) * 100;
+                                bar.style.height = `${Math.max(heightPercent, 5)}%`; // min 5% height
+                                bar.title = `Test ${index + 1}: ${trendData[index]} ${data.unit}`;
+                                // Reset bar colors
+                                bar.classList.remove('bg-blue-300', 'bg-blue-500');
+                                bar.classList.add(index === trendData.length - 1 ? 'bg-blue-500' : 'bg-blue-300');
+                            } else {
+                                bar.style.height = '0%';
+                            }
+                        });
+                    }
+                } catch (e) {
+                    console.error("Could not parse trend data:", e);
+                    // Hide trend bars if data is bad
+                    trendBars.forEach(bar => bar.style.height = '0%');
+                }
+
+                // NEW: 6. Populate Next Steps
+                if (data.nextSteps && data.nextSteps.trim() !== "") {
+                    modalNextSteps.textContent = data.nextSteps;
+                    modalNextStepsContainer.style.display = 'block';
+                } else {
+                    // Hide the next steps container if no text is provided
+                    modalNextStepsContainer.style.display = 'none';
+                }
+
+                // 7. Show the modal
+                modalBackdrop.classList.remove('opacity-0', 'scale-95', 'pointer-events-none');
+                modalContent.classList.remove('scale-95');
+            };
+
+            // Function to close the modal
+            const closeModal = () => {
+                modalBackdrop.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+                modalContent.classList.add('scale-95');
+            };
+
+            // Add click listeners to all interactive rows
+            interactiveRows.forEach(row => {
+                row.addEventListener('click', () => {
+                    const data = {
+                        testName: row.dataset.testName,
+                        result: row.dataset.result,
+                        unit: row.dataset.unit,
+                        range: row.dataset.range,
+                        status: row.dataset.status,
+                        statusColor: row.dataset.statusColor,
+                        info: row.dataset.info,
+                        trend: row.dataset.trend,
+                        nextSteps: row.dataset.nextSteps // NEW: Get next-steps data
+                    };
+                    openModal(data);
+                });
+            });
+
+            // Add click listeners for closing the modal
+            modalCloseBtn.addEventListener('click', closeModal);
+            modalBackdrop.addEventListener('click', (event) => {
+                // Only close if the backdrop itself (not content) is clicked
+                if (event.target === modalBackdrop) {
+                    closeModal();
+                }
+            });
+
+            // Add keyboard support
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && !modalBackdrop.classList.contains('pointer-events-none')) {
+                    closeModal();
+                }
+            });
+
+            // 5. Init Lucide Icons (finds all `data-lucide` attributes and replaces them)
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        });
+    </script>
+
+</body>
+</html>
